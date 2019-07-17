@@ -1,0 +1,2 @@
+# FrontEndInterviewPoint
+汇集了一些收集的前端面试点，整理代码并阐述思路
