@@ -1,15 +1,18 @@
-const mPromise = require('./mPromise')
+const MyPromise = require('./MyPromise')
 
-new mPromise((resolve, reject) => {
+const mPromise = new MyPromise((resolve, reject) => {
   setTimeout(() => {
     resolve(1)
   }, 1000)
 })
+mPromise
   .then(res => {
-    return new mPromise((resolve, reject) => {
+    console.log('2', mPromise)
+    return new MyPromise((resolve, reject) => {
       resolve('hehe')
     })
   })
   .then(res => {
     console.log('xixi', res)
   })
+console.log('1', mPromise)

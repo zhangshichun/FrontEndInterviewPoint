@@ -4,11 +4,16 @@ const REJECTED = 'rejected'
 
 module.exports = class MyPromise {
   constructor(fn) {
+    this.state = PENDING
+    this.value = undefined
+    this.reason = undefined
+
     this._resolve = res => {
       if (this.state !== PENDING) {
         return
       }
       setTimeout(() => {
+        this.value = res
         this.state = RESOLVED
         this.thenMethod && this.thenMethod(res)
       }, 0)
@@ -21,12 +26,9 @@ module.exports = class MyPromise {
             try {
               const onFulfilledRes = onFulfilled(res)
               if (onFulfilledRes instanceof MyPromise) {
-                onFulfilledRes.then(
-                  res => {
-                    resolve(res)
-                  },
-                  () => {}
-                )
+                onFulfilledRes.then(res => {
+                  resolve(res)
+                })
               } else {
                 resolve(onFulfilledRes)
               }
@@ -38,6 +40,8 @@ module.exports = class MyPromise {
       })
     }
     this._reject = err => {
+      this.state = REJECTED
+      this.reason = err
       if (this.onRejected) {
         this.onRejected(err)
         return
@@ -47,7 +51,6 @@ module.exports = class MyPromise {
     this.catch = onException => {
       this.onException = onException
     }
-    this.state = PENDING
     fn(this._resolve, this._reject)
   }
 
