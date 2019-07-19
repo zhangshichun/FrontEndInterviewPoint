@@ -2,7 +2,7 @@ const PENDING = 'pending'
 const RESOLVED = 'resolved'
 const REJECTED = 'rejected'
 
-module.exports = class mPromise {
+module.exports = class MyPromise {
   constructor(fn) {
     this._resolve = res => {
       if (this.state !== PENDING) {
@@ -15,12 +15,12 @@ module.exports = class mPromise {
     }
     this.then = (onFulfilled, onRejected) => {
       this.onRejected = onRejected
-      return new mPromise((resolve, reject) => {
+      return new MyPromise((resolve, reject) => {
         this.thenMethod = res => {
           if (onFulfilled instanceof Function) {
             try {
               const onFulfilledRes = onFulfilled(res)
-              if (onFulfilledRes instanceof mPromise) {
+              if (onFulfilledRes instanceof MyPromise) {
                 onFulfilledRes.then(
                   res => {
                     resolve(res)
@@ -53,33 +53,33 @@ module.exports = class mPromise {
 
   /**
    * @param {any} value
-   * @returns {mPromise}
+   * @returns {MyPromise}
    */
   static resolve(value) {
-    if (value instanceof mPromise) {
-      return mPromise
+    if (value instanceof MyPromise) {
+      return MyPromise
     }
-    return new mPromise((resolve, reject) => {
+    return new MyPromise((resolve, reject) => {
       resolve(value)
     })
   }
 
   /**
    * @param {any} value
-   * @returns {mPromise}
+   * @returns {MyPromise}
    */
   static reject(value) {
-    if (value instanceof mPromise) {
-      return mPromise
+    if (value instanceof MyPromise) {
+      return MyPromise
     }
-    return new mPromise((resolve, reject) => {
+    return new MyPromise((resolve, reject) => {
       reject(value)
     })
   }
 
   /**
    * @param {Iterator} promiseArr
-   * @returns {mPromise}
+   * @returns {MyPromise}
    * @description
    * 1. 首先解释下入参，大多数情况下Promise.all的入参是一个数组，数组的每个元素都是Promise实例，
    * 但实际上入参允许是具备Iterator接口的对象，但返回的每个成员都必须是Promise实例
@@ -89,17 +89,17 @@ module.exports = class mPromise {
    */
   static all(promiseArr) {
     // 先将遍历体转换为数组，然后将非promise元素转换为Promis实例
-    const mPromiseArr = Array.from(promiseArr).map(item => {
-      if (item instanceof mPromise) {
+    const MyPromiseArr = Array.from(promiseArr).map(item => {
+      if (item instanceof MyPromise) {
         return item
       }
-      return mPromise.resolve(item)
+      return MyPromise.resolve(item)
     })
-    return new mPromise((resolve, reject) => {
+    return new MyPromise((resolve, reject) => {
       let count = 0
       let totle = promiseArr.length
       const resArr = new Array(totle)
-      mPromiseArr.forEach((item, index) => {
+      MyPromiseArr.forEach((item, index) => {
         item
           .then(res => {
             resArr[index] = res
@@ -117,7 +117,7 @@ module.exports = class mPromise {
 
   /**
    * @param {Iterator} promiseArr
-   * @returns {mPromise}
+   * @returns {MyPromise}
    * @description
    * 1. 首先解释下入参，大多数情况下Promise.all的入参是一个数组，数组的每个元素都是Promise实例，
    * 但实际上入参允许是具备Iterator接口的对象，但返回的每个成员都必须是Promise实例;(如果不是promise,则转换成promise)
@@ -126,14 +126,14 @@ module.exports = class mPromise {
    * 3. 方法返回的Promise实例的.catch方法， 会抛出Iterator接口中， 第一个变为rejected状态的异常值。
    */
   static race(promiseArr) {
-    const mPromiseArr = Array.from(promiseArr).map(item => {
-      if (item instanceof mPromise) {
+    const MyPromiseArr = Array.from(promiseArr).map(item => {
+      if (item instanceof MyPromise) {
         return item
       }
-      return mPromise.resolve(item)
+      return MyPromise.resolve(item)
     })
-    return new mPromise((resolve, reject) => {
-      mPromiseArr.forEach(item => {
+    return new MyPromise((resolve, reject) => {
+      MyPromiseArr.forEach(item => {
         item
           .then(res => {
             resolve(res)
