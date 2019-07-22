@@ -4,7 +4,7 @@ Function.prototype.myBind = function(context, ...args) {
   }
   const fnToBind = this
   const fnBound = function(...fnArgs) {
-    fnToBind.apply(args.concat(fnArgs))
+    return fnToBind.apply(context, args.concat(fnArgs))
   }
   const fnPro = function() {}
   if (this.prototype) {
