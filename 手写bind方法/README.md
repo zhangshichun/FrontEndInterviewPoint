@@ -60,5 +60,64 @@ newAdd(1,2)
 首先，bind 是属于方法的方法，而且它返回一个方法，并不改变原有方法。因此，它需要被挂到原型链上。
 
 ```
-
+Function.prototype.myBind = function() {
+  const fnBound = function() {}
+  return fnBound
+}
 ```
+如上，应该是我们这个方法的基本结构。  
+下面，让我们写一些代码，实现上下文绑定。  
+```
+Function.prototype.myBind = function(context) {
+  const fnToBind = this
+  const fnBound = function() {
+    return fnToBind.apply(context)
+  }
+  return fnBound
+}
+```
+接下来，我们可以做一个验证了：  
+```
+const boy = {
+  x: 8,
+  getX() {return this.x}
+}
+const getX = boy.getX
+getX.myBind(boy)()
+// 8
+```
+没错，最核心的功能已经完成，接下来让我们实现偏函数的部分。
+
+## STEP 2 实现偏函数
+其实偏函数的原理很简单，bind中传入的参数数组，出现在执行函数的数组前端即可。  
+```
+Function.prototype.myBind = function(context, ...args) {
+  const fnToBind = this
+  const fnBound = function(...fnArgs) {
+    return fnToBind.apply(context, args.concat(fnArgs))
+  }
+  return fnBound
+}
+```
+很容易吧？我们做个验证。  
+```
+function add(a, b) {
+	return a + b
+}
+add.myBind(null, 10)(1, 2)
+// 11
+```
+看到结果，我们就知道，大功告成，基本已经达到了预期的目标。
+
+## STEP 3 补全特殊情况
+这一块我就不细说了，可以参照MDN上的Polyfill的代码。  
+[链接，点我跳转](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/bind#Compatibility)  
+简单来说，有以下几个特殊情况要注意：
+1,并不是所有方法都能用bind，比如delete方法和参数的get/set方法，就是没有apply属性的，也就是not callable;碰到这种方法要抛出异常。
+2，需要保持方法原型链的完整。
+3，需要考虑实例化方法。
+
+好了，手动实现bind方法的部分到这里就结束了。
+所有代码已经上传到github上。  
+[源码链接](https://github.com/zhangshichun/FrontEndInterviewPoint/tree/master/%E6%89%8B%E5%86%99bind%E6%96%B9%E6%B3%95)  
+如果本文对您有帮助，请给我一个小小的star~爱你
